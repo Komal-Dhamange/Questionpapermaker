@@ -6,12 +6,19 @@
   <title>Advanced Question Paper Builder</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Naye features ke liye thoda extra style */
     .worksheet-ans { width: 90%; margin-top: 5px; border: 1px solid #ddd; padding: 5px; border-radius: 4px; font-size: 13px; display: block; }
     .lesson-checkbox { transform: scale(1.3); margin-right: 10px; cursor: pointer; }
     .combine-btn { background-color: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; display: none; }
-    .combine-btn:hover { background-color: #5b4bc4; }
-    /* Animations */
+    
+    /* BULK UPLOAD STYLES */
+    .bulk-box { background: #f1f2f6; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 2px dashed #6c5ce7; }
+    .bulk-box label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; }
+    .bulk-box textarea { width: 100%; height: 100px; border-radius: 5px; border: 1px solid #ccc; padding: 8px; font-size: 13px; margin-bottom: 8px; }
+    .bulk-btn { background: #6c5ce7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+    
+    .setting-row { display: flex; gap: 5px; margin-bottom: 10px; }
+    .setting-row input { width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+
     .step-container { animation: fadeIn 0.4s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -20,7 +27,7 @@
 
   <div id="loginBox" class="login-card">
     <h2>Login to Dashboard</h2>
-    <input type="text" id="username" placeholder="Enter Username (e.g. Komal)" required>
+    <input type="text" id="username" placeholder="Enter Username" required>
     <input type="password" id="password" placeholder="Enter Password" required>
     <button onclick="login()">Enter Dashboard</button>
   </div>
@@ -81,18 +88,32 @@
       <div class="builder-layout">
         <div class="left-panel">
           <h3 id="currentLessonTitle">Questions</h3>
-          <textarea id="question" placeholder="Enter questions (Press Enter for new line)"></textarea>
-          <button onclick="addQuestion()" class="action-btn">Save Questions</button>
+          
+          <div class="bulk-box">
+            <label>Bulk Paste Questions (Line by line):</label>
+            <textarea id="bulkQuestions" placeholder="Q1. What is html?&#10;Q2. Why we use css?"></textarea>
+            <button onclick="addBulkQuestions()" class="bulk-btn">⚡ Add All Questions</button>
+          </div>
+
+          <textarea id="question" style="height:50px;" placeholder="Or enter single question..."></textarea>
+          <button onclick="addQuestion()" class="action-btn">Save Single Question</button>
           <hr>
           <div id="bank"></div>
         </div>
         
         <div class="right-panel">
           <h3>Paper Settings</h3>
-          <input type="text" id="paperTitle" placeholder="Exam Name">
+          <input type="text" id="paperTitle" placeholder="Exam Name (e.g. Unit Test 1)" style="margin-bottom:8px;">
+          
+          <div class="setting-row">
+            <input type="text" id="paperTime" placeholder="Time (e.g. 1 hr)">
+            <input type="text" id="paperMarks" placeholder="Total Marks">
+            <input type="text" id="paperDate" placeholder="Date">
+          </div>
+
           <button onclick="generatePaper()" class="gen-btn">Generate Test Paper</button>
           <button onclick="generateWorksheet()" class="gen-btn" style="background:#2ecc71; margin-top:5px;">Generate Worksheet (Q+A)</button>
-          <button onclick="printPaper()" class="print-btn">Print</button>
+          <button onclick="printPaper()" class="print-btn">Print / Save PDF</button>
           <div id="paper"></div>
         </div>
       </div>
@@ -101,5 +122,23 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    function addBulkQuestions() {
+        let text = document.getElementById("bulkQuestions").value.trim();
+        if(!text) { alert("Empty List! Please add some questions."); return; }
+        let lines = text.split('\n');
+        let count = 0;
+        lines.forEach(line => {
+            if(line.trim() !== "") {
+                questions.push({ q: line.trim(), a: "", img: "" });
+                count++;
+            }
+        });
+        if(currentLessonIndex !== "MULTI") { saveQuestionsToStorage(); }
+        document.getElementById("bulkQuestions").value = "";
+        display();
+        alert(count + " Success!");
+    }
+  </script>
 </body>
 </html>

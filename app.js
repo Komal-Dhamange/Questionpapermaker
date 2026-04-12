@@ -2,15 +2,22 @@ let selections = { class: '', subject: '', person: '' };
 let currentLessonIndex = null;
 let questions = [];
 
-// Login Function
+// --- UPDATED LOGIN FUNCTION ---
 function login() {
-    let u = document.getElementById("username").value;
-    if(u) {
+    let u = document.getElementById("username").value.trim(); // Username input
+    let p = document.getElementById("password").value;        // Password input
+
+    // Authorized names list (Strictly starting with Capital letters)
+    const allowedUsers = ["Komal", "Kunal", "Prajwal", "Pranay", "Payal"];
+    const securePassword = "1234";
+
+    // Strict Case-Sensitive Check
+    if (allowedUsers.includes(u) && p === securePassword) {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("app").style.display = "block";
         document.body.classList.remove("login-bg");
     } else {
-        alert("Please enter a username to login.");
+        alert("Access Denied! Check your Username (First letter must be Capital) and Password.");
     }
 }
 
@@ -22,10 +29,9 @@ function selectClass(val) {
     showStep('subjectStep');
 }
 
-// STEP 2: Subject Management (Permanent jab tak delete na karein)
+// STEP 2: Subject Management
 function loadSubjects() {
     let key = `subjects_class_${selections.class}`;
-    // Agar pehle se subjects hain toh wahi load honge, warna khali array
     let subjects = JSON.parse(localStorage.getItem(key)) || [];
     
     let html = `
@@ -191,7 +197,6 @@ function deleteQ(i) {
     display();
 }
 
-// Final Paper Generator (Fixed Numbering & Heading)
 function generatePaper() {
     let selected = document.querySelectorAll("input[type='checkbox']:checked");
     if(selected.length === 0) { alert("Please select questions first!"); return; }
@@ -203,7 +208,7 @@ function generatePaper() {
     let output = `
     <div id="printArea" style="padding:40px; border:3px solid #000; font-family:'Times New Roman', serif; background:white; color:black; min-height:800px;">
         <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
-            <h1 style="margin:0; font-size:28px; text-transform:uppercase;">Narayana Tuitions Classes</h1>
+            <h1 style="margin:0; font-size:28px; text-transform:uppercase;">Narayana Tution Classes</h1>
             <h3 style="margin:5px 0;">${examName}</h3>
             <div style="display:flex; justify-content:space-between; margin-top:20px; font-weight:bold;">
                 <span>Class: ${selections.class}th</span>
@@ -223,7 +228,6 @@ function generatePaper() {
         let idx = cb.getAttribute('data-index');
         let qText = questions[idx].q;
         
-        // Agar "Answer the following" ya "Que:" se start ho raha hai toh bina number ke
         if (qText.toLowerCase().includes("answer the following") || qText.toLowerCase().startsWith("que:")) {
             output += `<p style="margin-top:15px; margin-bottom:5px; font-weight:bold;">${qText}</p>`;
         } else {
@@ -261,6 +265,7 @@ function showStep(stepId) {
 
 function goBack() {
     let current = document.querySelector('.step-container[style*="display: block"]');
+    if(!current) return;
     if(current.id === 'subjectStep') showStep('classStep');
     else if(current.id === 'personStep') showStep('subjectStep');
     else if(current.id === 'lessonStep') showStep('personStep');

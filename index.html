@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Question Paper Builder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-bg">
+
+  <div id="loginBox" class="login-card">
+    <h2>Login to Dashboard</h2>
+    <input type="text" id="username" placeholder="Enter Username">
+    <input type="password" id="password" placeholder="Enter Password">
+    <button onclick="login()">Enter Dashboard</button>
+  </div>
+
+  <div id="app" style="display:none;">
+    
+    <div class="header">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2 id="currentStepTitle">English Medium</h2>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="classStep" class="step-container">
+      <div class="grid-container">
+        <div class="card" onclick="selectClass('12')"><div class="icon">XII</div><span>Class 12</span></div>
+        <div class="card" onclick="selectClass('11')"><div class="icon">XI</div><span>Class 11</span></div>
+        <div class="card" onclick="selectClass('10')"><div class="icon">X</div><span>Class 10</span></div>
+        <div class="card" onclick="selectClass('9')"><div class="icon">IX</div><span>Class 9</span></div>
+        <div class="card" onclick="selectClass('8')"><div class="icon">VIII</div><span>Class 8</span></div>
+        <div class="card" onclick="selectClass('7')"><div class="icon">VII</div><span>Class 7</span></div>
+        <div class="card" onclick="selectClass('6')"><div class="icon">VI</div><span>Class 6</span></div>
+        <div class="card" onclick="selectClass('5')"><div class="icon">V</div><span>Class 5</span></div>
+        <div class="card" onclick="selectClass('4')"><div class="icon">IV</div><span>Class 4</span></div>
+        <div class="card" onclick="selectClass('3')"><div class="icon">III</div><span>Class 3</span></div>
+        <div class="card" onclick="selectClass('2')"><div class="icon">II</div><span>Class 2</span></div>
+        <div class="card" onclick="selectClass('1')"><div class="icon">I</div><span>Class 1</span></div>
+      </div>
+    </div>
+
+    <div id="subjectStep" class="step-container" style="display:none;">
+      <div class="list-container" id="subjectList"></div>
+    </div>
+
+    <div id="personStep" class="step-container" style="display:none;">
+      <h3 style="text-align:center; margin-top:20px;">Who is adding questions?</h3>
+      <div class="grid-container">
+        <div class="card person-card" onclick="selectPerson('Komal')">Komal</div>
+        <div class="card person-card" onclick="selectPerson('Kunal')">Kunal</div>
+        <div class="card person-card" onclick="selectPerson('Prajwal')">Prajwal</div>
+        <div class="card person-card" onclick="selectPerson('Pranay')">Pranay</div>
+        <div class="card person-card" onclick="selectPerson('Payal')">Payal</div>
+      </div>
+    </div>
+
+    <div id="lessonStep" class="step-container" style="display:none;">
+      <div class="management-header">
+        <h3>Manage Lessons</h3>
+        <div class="add-box">
+          <input type="text" id="newLessonName" placeholder="New Lesson Name...">
+          <button onclick="addLesson()" class="add-btn">+ Add Lesson</button>
+        </div>
+      </div>
+      <div id="lessonList" class="list-container"></div>
+    </div>
+
+    <div id="builderStep" class="step-container" style="display:none;">
+      <div class="builder-layout">
+        <div class="left-panel">
+          <h3 id="currentLessonTitle">Questions</h3>
+          <textarea id="question" placeholder="Enter questions (Press Enter for new line)"></textarea>
+          <button onclick="addQuestion()" class="action-btn">Save Questions</button>
+          <hr>
+          <div id="bank"></div>
+        </div>
+        
+        <div class="right-panel">
+          <h3>Paper Settings</h3>
+          <input type="text" id="paperTitle" placeholder="Exam Name">
+          <button onclick="generatePaper()" class="gen-btn">Generate Paper</button>
+          <button onclick="printPaper()" class="print-btn">Print</button>
+          <div id="paper"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

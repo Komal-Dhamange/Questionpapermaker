@@ -1,0 +1,264 @@
+let selections = { class: '', subject: '', person: '' };
+let currentLessonIndex = null;
+let questions = [];
+
+// Login Function
+function login() {
+    let u = document.getElementById("username").value;
+    if(u) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.body.classList.remove("login-bg");
+    } else {
+        alert("Please enter a username to login.");
+    }
+}
+
+// STEP 1: Select Class
+function selectClass(val) {
+    selections.class = val;
+    document.getElementById('currentStepTitle').innerText = "Class " + val + " - Manage Subjects";
+    loadSubjects();
+    showStep('subjectStep');
+}
+
+// STEP 2: Subject Management (Add/Edit/Delete/Select)
+function loadSubjects() {
+    let key = `subjects_class_${selections.class}`;
+    // Default subjects list if empty
+    let defaultSubs = ['Mathematics', 'English Balbharati', 'General Science', 'History and Civics', 'Geography', 'Hindi', 'Sanskrit'];
+    let subjects = JSON.parse(localStorage.getItem(key)) || defaultSubs;
+    
+    // Save defaults if it's the first time
+    if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, JSON.stringify(subjects));
+    }
+
+    let html = `
+        <div class="management-header" style="margin-bottom:20px;">
+            <div class="add-box">
+                <input type="text" id="newSubName" placeholder="Add New Subject Name...">
+                <button onclick="addSubject()" class="add-btn">+ Add Subject</button>
+            </div>
+        </div>
+    `;
+
+    subjects.forEach((s, i) => {
+        html += `
+        <div class="lesson-item">
+            <span><b>${i+1}.</b> ${s}</span>
+            <div class="btn-group">
+                <button class="open-btn" onclick="selectSubject('${s}')">Select</button>
+                <button class="edit-btn" onclick="editSubject(${i})">Edit</button>
+                <button class="del-btn" onclick="deleteSubject(${i})">Delete</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('subjectList').innerHTML = html;
+}
+
+function addSubject() {
+    let name = document.getElementById('newSubName').value.trim();
+    if(!name) return;
+    let key = `subjects_class_${selections.class}`;
+    let subjects = JSON.parse(localStorage.getItem(key));
+    subjects.push(name);
+    localStorage.setItem(key, JSON.stringify(subjects));
+    loadSubjects();
+}
+
+function editSubject(index) {
+    let key = `subjects_class_${selections.class}`;
+    let subjects = JSON.parse(localStorage.getItem(key));
+    let n = prompt("Edit Subject Name:", subjects[index]);
+    if(n) { 
+        subjects[index] = n; 
+        localStorage.setItem(key, JSON.stringify(subjects)); 
+        loadSubjects(); 
+    }
+}
+
+function deleteSubject(index) {
+    if(confirm("Are you sure you want to delete this subject?")) {
+        let key = `subjects_class_${selections.class}`;
+        let subjects = JSON.parse(localStorage.getItem(key));
+        subjects.splice(index, 1);
+        localStorage.setItem(key, JSON.stringify(subjects));
+        loadSubjects();
+    }
+}
+
+function selectSubject(val) {
+    selections.subject = val;
+    document.getElementById('currentStepTitle').innerText = val + " - Select Person";
+    showStep('personStep');
+}
+
+// STEP 3: Select Person
+function selectPerson(val) {
+    selections.person = val;
+    document.getElementById('currentStepTitle').innerText = val + "'s Panel (" + selections.subject + ")";
+    loadLessons();
+    showStep('lessonStep');
+}
+
+// STEP 4: Lesson Management
+function loadLessons() {
+    let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+    let lessons = JSON.parse(localStorage.getItem(key)) || [];
+    let html = '';
+    lessons.forEach((lesson, index) => {
+        html += `
+        <div class="lesson-item">
+            <span><b>${index + 1}.</b> ${lesson.name}</span>
+            <div class="btn-group">
+                <button class="open-btn" onclick="openLesson(${index})">Open Questions</button>
+                <button class="edit-btn" onclick="editLesson(${index})">Edit</button>
+                <button class="del-btn" onclick="deleteLesson(${index})">Delete</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('lessonList').innerHTML = html || '<p style="padding:15px;">No lessons found. Add a lesson to start.</p>';
+}
+
+function addLesson() {
+    let name = document.getElementById('newLessonName').value.trim();
+    if(!name) return;
+    let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+    let lessons = JSON.parse(localStorage.getItem(key)) || [];
+    lessons.push({ name: name, questions: [] });
+    localStorage.setItem(key, JSON.stringify(lessons));
+    document.getElementById('newLessonName').value = '';
+    loadLessons();
+}
+
+function editLesson(index) {
+    let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+    let lessons = JSON.parse(localStorage.getItem(key));
+    let n = prompt("Update Lesson Name:", lessons[index].name);
+    if(n) { lessons[index].name = n; localStorage.setItem(key, JSON.stringify(lessons)); loadLessons(); }
+}
+
+function deleteLesson(index) {
+    if(confirm("Are you sure? All questions in this lesson will be deleted.")) {
+        let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+        let lessons = JSON.parse(localStorage.getItem(key));
+        lessons.splice(index, 1);
+        localStorage.setItem(key, JSON.stringify(lessons));
+        loadLessons();
+    }
+}
+
+// STEP 5: Question Management
+function openLesson(index) {
+    currentLessonIndex = index;
+    let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+    let lessons = JSON.parse(localStorage.getItem(key));
+    document.getElementById('currentLessonTitle').innerText = "Topic: " + lessons[index].name;
+    questions = lessons[index].questions || [];
+    display();
+    showStep('builderStep');
+}
+
+function addQuestion() {
+    let qText = document.getElementById("question").value.trim();
+    if(!qText) return;
+    qText.split("\n").forEach(line => { if(line.trim()) questions.push({ q: line.trim() }); });
+    saveToStorage();
+    document.getElementById("question").value = "";
+    display();
+}
+
+function saveToStorage() {
+    let key = `lessons_${selections.class}_${selections.subject}_${selections.person}`;
+    let lessons = JSON.parse(localStorage.getItem(key));
+    lessons[currentLessonIndex].questions = questions;
+    localStorage.setItem(key, JSON.stringify(lessons));
+}
+
+function display() {
+    let bank = document.getElementById("bank");
+    bank.innerHTML = questions.map((item, i) => `
+        <div style="padding:10px; border-bottom:1px solid #eee; display:flex; align-items:center; background:#fff;">
+            <input type="checkbox" data-index="${i}" style="width:20px; margin-right:10px;">
+            <span style="flex-grow:1;">${item.q}</span>
+            <button onclick="deleteQ(${i})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">X</button>
+        </div>
+    `).join('');
+}
+
+function deleteQ(i) {
+    questions.splice(i, 1);
+    saveToStorage();
+    display();
+}
+
+// Final Paper Generator
+function generatePaper() {
+    let selected = document.querySelectorAll("input[type='checkbox']:checked");
+    if(selected.length === 0) { alert("Please select questions first!"); return; }
+
+    let examName = document.getElementById('paperTitle').value || 'Continuous Assessment';
+    let time = prompt("Enter Time (e.g., 1 Hour):", "1.5 Hours");
+    let marks = prompt("Enter Total Marks:", "20");
+
+    let output = `
+    <div id="printArea" style="padding:40px; border:3px solid #000; font-family:'Times New Roman', serif; background:white; color:black; min-height:800px;">
+        <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+            <h1 style="margin:0; font-size:28px; text-transform:uppercase;">Narayana Tution Classes</h1>
+            <h3 style="margin:5px 0;">${examName}</h3>
+            <div style="display:flex; justify-content:space-between; margin-top:20px; font-weight:bold;">
+                <span>Class: ${selections.class}th</span>
+                <span>Subject: ${selections.subject}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:5px; font-weight:bold;">
+                <span>Time: ${time}</span>
+                <span>Max Marks: ${marks}</span>
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            <ol style="font-size:18px; line-height:2;">
+    `;
+    
+    selected.forEach((cb) => {
+        let idx = cb.getAttribute('data-index');
+        output += `<li style="margin-bottom:15px; padding-left:10px;">${questions[idx].q}</li>`;
+    });
+    
+    output += `
+            </ol>
+        </div>
+        <div style="margin-top:60px; display:flex; justify-content:space-between; font-weight:bold;">
+            <span>Parent's Signature</span>
+            <span>Teacher's Signature</span>
+        </div>
+    </div>`;
+    
+    document.getElementById("paper").innerHTML = output;
+    document.getElementById("paper").scrollIntoView({ behavior: 'smooth' });
+}
+
+function printPaper() {
+    let content = document.getElementById("paper").innerHTML;
+    let win = window.open('', '', 'height=700,width=900');
+    win.document.write('<html><head><title>Print Paper</title></head><body>');
+    win.document.write(content);
+    win.document.write('</body></html>');
+    win.document.close();
+    win.print();
+}
+
+function showStep(stepId) {
+    document.querySelectorAll('.step-container').forEach(s => s.style.display = 'none');
+    document.getElementById(stepId).style.display = 'block';
+}
+
+function goBack() {
+    let current = document.querySelector('.step-container[style*="display: block"]');
+    if(current.id === 'subjectStep') showStep('classStep');
+    else if(current.id === 'personStep') showStep('subjectStep');
+    else if(current.id === 'lessonStep') showStep('personStep');
+    else if(current.id === 'builderStep') showStep('lessonStep');
+}
+
+function logout() { location.reload(); }

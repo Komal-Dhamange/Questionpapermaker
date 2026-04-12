@@ -1,0 +1,52 @@
+body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; }
+.login-bg { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f') no-repeat center/cover; height: 100vh; }
+
+.header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); sticky top: 0; }
+.back-btn { background: #e4e6eb; padding: 8px 15px; border-radius: 6px; cursor: pointer; border: none; font-weight: 600; }
+.logout-btn { background: #ff4757; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+
+/* Grid for Classes (Image Style) */
+.grid-container { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+    padding: 20px; 
+    max-width: 600px;
+    margin: auto;
+}
+.card { 
+    background: white; 
+    border-radius: 10px; 
+    padding: 15px; 
+    text-align: center; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 2px solid #a5d8ff; /* Light blue border like image */
+}
+.card:hover { transform: scale(1.05); border-color: #007bff; background: #f8fbff; }
+.icon { font-size: 22px; font-weight: 800; color: #333; margin-bottom: 5px; }
+.card span { font-size: 13px; color: #666; font-weight: 600; }
+
+/* Management & Builder Styles */
+.management-header { padding: 20px; background: #fff; border-radius: 10px; margin: 10px; }
+.add-box { display: flex; gap: 10px; }
+.add-btn { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+
+.lesson-item { 
+  display: flex; justify-content: space-between; align-items: center;
+  background: white; padding: 15px; margin: 10px; border-radius: 8px; border-left: 5px solid #007bff;
+}
+
+.btn-group button { padding: 5px 10px; margin-left: 5px; border: none; border-radius: 4px; cursor: pointer; }
+.edit-btn { background: #ffc107; }
+.del-btn { background: #dc3545; color: white; }
+.open-btn { background: #007bff; color: white; }
+
+.builder-layout { display: flex; gap: 20px; padding: 20px; }
+.left-panel, .right-panel { flex: 1; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+.action-btn { background: #007bff; color: white; width: 100%; padding: 10px; border: none; border-radius: 5px; }
+
+.login-card { width: 350px; margin: 15vh auto; background: white; padding: 30px; border-radius: 15px; text-align: center; }

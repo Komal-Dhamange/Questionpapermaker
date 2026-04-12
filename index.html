@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advanced Question Paper Builder</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Naye features ke liye thoda extra style */
+    .worksheet-ans { width: 90%; margin-top: 5px; border: 1px solid #ddd; padding: 5px; border-radius: 4px; font-size: 13px; display: block; }
+    .lesson-checkbox { transform: scale(1.3); margin-right: 10px; cursor: pointer; }
+    .combine-btn { background-color: #6c5ce7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; display: none; }
+    .combine-btn:hover { background-color: #5b4bc4; }
+    /* Animations */
+    .step-container { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body class="login-bg">
 
@@ -64,6 +74,7 @@
         </div>
       </div>
       <div id="lessonList" class="list-container"></div>
+      <button id="multiBtn" class="combine-btn" onclick="combineLessons()">Generate Combined Test/Worksheet</button>
     </div>
 
     <div id="builderStep" class="step-container" style="display:none;">
@@ -79,7 +90,8 @@
         <div class="right-panel">
           <h3>Paper Settings</h3>
           <input type="text" id="paperTitle" placeholder="Exam Name">
-          <button onclick="generatePaper()" class="gen-btn">Generate Paper</button>
+          <button onclick="generatePaper()" class="gen-btn">Generate Test Paper</button>
+          <button onclick="generateWorksheet()" class="gen-btn" style="background:#2ecc71; margin-top:5px;">Generate Worksheet (Q+A)</button>
           <button onclick="printPaper()" class="print-btn">Print</button>
           <div id="paper"></div>
         </div>

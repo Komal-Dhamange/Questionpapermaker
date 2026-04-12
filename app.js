@@ -275,7 +275,7 @@ function generateOutput(type) {
         let idx = cb.getAttribute('data-index');
         let item = questions[idx];
         output += `<div style="margin-bottom:25px;">
-            <b>${i+1}. ${item.q}</b>
+            <b>${item.q}</b>
             ${item.img ? `<br><img src="${item.img}" style="max-width:350px; margin-top:10px; border:1px solid #eee;">` : ''}
             ${isWorksheet && item.a ? `<div style="margin-left:25px; color:#333;"><i>Ans: ${item.a}</i></div>` : ''}
         </div>`;

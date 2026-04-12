@@ -22,18 +22,12 @@ function selectClass(val) {
     showStep('subjectStep');
 }
 
-// STEP 2: Subject Management (Add/Edit/Delete/Select)
+// STEP 2: Subject Management (Permanent jab tak delete na karein)
 function loadSubjects() {
     let key = `subjects_class_${selections.class}`;
-    // Default subjects list if empty
-    let defaultSubs = ['Mathematics', 'English Balbharati', 'General Science', 'History and Civics', 'Geography', 'Hindi', 'Sanskrit'];
-    let subjects = JSON.parse(localStorage.getItem(key)) || defaultSubs;
+    // Agar pehle se subjects hain toh wahi load honge, warna khali array
+    let subjects = JSON.parse(localStorage.getItem(key)) || [];
     
-    // Save defaults if it's the first time
-    if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, JSON.stringify(subjects));
-    }
-
     let html = `
         <div class="management-header" style="margin-bottom:20px;">
             <div class="add-box">
@@ -42,6 +36,10 @@ function loadSubjects() {
             </div>
         </div>
     `;
+
+    if (subjects.length === 0) {
+        html += '<p style="padding:15px; color:#666;">No subjects added for this class yet.</p>';
+    }
 
     subjects.forEach((s, i) => {
         html += `
@@ -61,7 +59,7 @@ function addSubject() {
     let name = document.getElementById('newSubName').value.trim();
     if(!name) return;
     let key = `subjects_class_${selections.class}`;
-    let subjects = JSON.parse(localStorage.getItem(key));
+    let subjects = JSON.parse(localStorage.getItem(key)) || [];
     subjects.push(name);
     localStorage.setItem(key, JSON.stringify(subjects));
     loadSubjects();
@@ -79,7 +77,7 @@ function editSubject(index) {
 }
 
 function deleteSubject(index) {
-    if(confirm("Are you sure you want to delete this subject?")) {
+    if(confirm("Are you sure? All data linked to this subject will remain but the subject will be removed from this list.")) {
         let key = `subjects_class_${selections.class}`;
         let subjects = JSON.parse(localStorage.getItem(key));
         subjects.splice(index, 1);
@@ -193,19 +191,19 @@ function deleteQ(i) {
     display();
 }
 
-// Final Paper Generator
+// Final Paper Generator (Fixed Numbering & Heading)
 function generatePaper() {
     let selected = document.querySelectorAll("input[type='checkbox']:checked");
     if(selected.length === 0) { alert("Please select questions first!"); return; }
 
     let examName = document.getElementById('paperTitle').value || 'Continuous Assessment';
-    let time = prompt("Enter Time (e.g., 1 Hour):", "1.5 Hours");
+    let time = prompt("Enter Time:", "1.5 Hours");
     let marks = prompt("Enter Total Marks:", "20");
 
     let output = `
     <div id="printArea" style="padding:40px; border:3px solid #000; font-family:'Times New Roman', serif; background:white; color:black; min-height:800px;">
         <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
-            <h1 style="margin:0; font-size:28px; text-transform:uppercase;">Narayana Tution Classes</h1>
+            <h1 style="margin:0; font-size:28px; text-transform:uppercase;">Narayana Tuitions Classes</h1>
             <h3 style="margin:5px 0;">${examName}</h3>
             <div style="display:flex; justify-content:space-between; margin-top:20px; font-weight:bold;">
                 <span>Class: ${selections.class}th</span>
@@ -217,16 +215,24 @@ function generatePaper() {
             </div>
         </div>
         <div style="margin-top:20px;">
-            <ol style="font-size:18px; line-height:2;">
+            <div id="questionsContainer" style="font-size:18px; line-height:2;">
     `;
     
+    let qNum = 1;
     selected.forEach((cb) => {
         let idx = cb.getAttribute('data-index');
-        output += `<li style="margin-bottom:15px; padding-left:10px;">${questions[idx].q}</li>`;
+        let qText = questions[idx].q;
+        
+        // Agar "Answer the following" ya "Que:" se start ho raha hai toh bina number ke
+        if (qText.toLowerCase().includes("answer the following") || qText.toLowerCase().startsWith("que:")) {
+            output += `<p style="margin-top:15px; margin-bottom:5px; font-weight:bold;">${qText}</p>`;
+        } else {
+            output += `<div style="margin-bottom:10px; padding-left:20px;">${qNum++}. ${qText}</div>`;
+        }
     });
     
     output += `
-            </ol>
+            </div>
         </div>
         <div style="margin-top:60px; display:flex; justify-content:space-between; font-weight:bold;">
             <span>Parent's Signature</span>

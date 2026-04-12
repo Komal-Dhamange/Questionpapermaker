@@ -335,10 +335,22 @@ function generateOutput(type) {
     let selected = document.querySelectorAll(".q-select:checked");
     if(selected.length === 0) { alert("Select questions first!"); return; }
     let examName = document.getElementById('paperTitle').value || 'Continuous Assessment';
-    let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:serif;">
-        <h1 style="text-align:center;">Narayana Tution Classes</h1>
-        <h3 style="text-align:center;">${examName}</h3>
-        <p>Class: ${selections.class} | Subject: ${selections.subject}</p><hr>`;
+let pTime = document.getElementById('paperTime').value || '';
+let pMarks = document.getElementById('paperMarks').value || '';
+let pDate = document.getElementById('paperDate').value || '';
+
+// 2. Output variable ko aise likhein
+let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial;">
+    <h1 style="text-align:center; margin-bottom:5px;">Narayana Tution Classes</h1>
+    <h3 style="text-align:center; margin-top:0;">${examName}</h3>
+    
+    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
+        <span>Time: ${pTime}</span>
+        <span>Date: ${pDate}</span>
+        <span>Marks: ${pMarks}</span>
+    </div>
+
+    <p>Class: ${selections.class} | Subject: ${selections.subject}</p><hr>`;
     
     selected.forEach((cb) => {
         let item = questions[cb.getAttribute('data-index')];

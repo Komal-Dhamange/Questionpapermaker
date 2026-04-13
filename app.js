@@ -332,26 +332,36 @@ function deleteLesson(index) {
 
 // Paper Generation (Simplified for brevity, keep your original if preferred)
 function generateOutput(type) {
-    let selected = document.querySelectorAll(".q-select:checked");
-    if(selected.length === 0) { alert("Select questions first!"); return; }
-    let examName = document.getElementById('paperTitle').value || 'Continuous Assessment';
+let selected = document.querySelectorAll(".q-select:checked");
+if(selected.length === 0) { alert("Select questions first!"); return; }
+let examName = document.getElementById('paperTitle').value || 'Continuous Assessment';
 let pTime = document.getElementById('paperTime').value || '';
 let pMarks = document.getElementById('paperMarks').value || '';
 let pDate = document.getElementById('paperDate').value || '';
 
-// 2. Output variable ko aise likhein
-let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial;">
+// Line 342 se replace shuru karein
+let isWorksheet = (type === 'ws');
+
+let output = `<div id="printArea" style="padding:30px; border:2px solid #000; font-family:Arial; width:95%; margin:auto;">
     <h1 style="text-align:center; margin-bottom:5px;">Narayana Tution Classes</h1>
-    <h3 style="text-align:center; margin-top:0;">${examName}</h3>
-    
-    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
-        <span>Time: ${pTime}</span>
-        <span>Date: ${pDate}</span>
-        <span>Marks: ${pMarks}</span>
+
+    <h3 style="text-align:center; margin-top:0;">${isWorksheet ? 'Worksheet' : examName}</h3>
+
+    <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size:15px;">
+        Date: ${pDate}
     </div>
 
-    <p>Class: ${selections.class} | Subject: ${selections.subject}</p><hr>`;
-    
+    ${!isWorksheet ? `
+    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px; font-size:15px;">
+        <span>Time: ${pTime}</span>
+        <span>Marks: ${pMarks}</span>
+    </div>` : ''}
+
+    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px; margin-bottom:5px;">
+        <span>Class: ${selections.class}</span>
+        <span>Subject: ${selections.subject}</span>
+    </div>
+    <hr style="border:1.5px solid #000; margin-top:5px;">`;
     selected.forEach((cb) => {
         let item = questions[cb.getAttribute('data-index')];
         output += `<p><b>${item.q}</b></p>${item.img ? `<img src="${item.img}" style="max-width:300px;">` : ''}`;

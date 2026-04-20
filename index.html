@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advanced Question Paper Builder</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     .worksheet-ans { width: 90%; margin-top: 5px; border: 1px solid #ddd; padding: 5px; border-radius: 4px; font-size: 13px; display: block; }
     .lesson-checkbox { transform: scale(1.3); margin-right: 10px; cursor: pointer; }
@@ -89,17 +91,6 @@
       <div class="list-container" id="subjectList"></div>
     </div>
 
-    <div id="personStep" class="step-container" style="display:none;">
-      <h3 style="text-align:center; margin-top:20px;">Who is adding questions?</h3>
-      <div class="grid-container">
-        <div class="card person-card" onclick="selectPerson('Komal')">Komal</div>
-        <div class="card person-card" onclick="selectPerson('Kunal')">Kunal</div>
-        <div class="card person-card" onclick="selectPerson('Prajwal')">Prajwal</div>
-        <div class="card person-card" onclick="selectPerson('Pranay')">Pranay</div>
-        <div class="card person-card" onclick="selectPerson('Payal')">Payal</div>
-      </div>
-    </div>
-
     <div id="lessonStep" class="step-container" style="display:none;">
       <div class="management-header">
         <h3>Manage Lessons</h3>
@@ -142,6 +133,7 @@
           <button onclick="generatePaper()" class="gen-btn">Generate Test Paper</button>
           <button onclick="generateWorksheet()" class="gen-btn" style="background:#2ecc71; margin-top:5px;">Generate Worksheet (Q+A)</button>
           <button onclick="printPaper()" class="print-btn">Print / Save PDF</button>
+          <button onclick="saveToFirebase()" class="gen-btn" style="background: #4CAF50;">Save Paper</button>
           <div id="paper"></div>
         </div>
       </div>

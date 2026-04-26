@@ -300,7 +300,7 @@ function generateOutput(type) {
     let pDate = document.getElementById('paperDate').value || '';
     let isWorksheet = (type === 'ws');
 
-    let output = `<div id="printArea" style="padding:20px; border:2px solid #000; font-family:Arial; width:100%; margin:auto; background:white;">
+    let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:100%; box-sizing:border-box; margin:0; background:white;">
         <h1 style="text-align:center; margin-bottom:5px;">Narayana Tuition Classes</h1>
         <h3 style="text-align:center; margin-top:0;">${isWorksheet ? 'Worksheet' : examName}</h3>`;
 

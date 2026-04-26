@@ -210,7 +210,14 @@ function saveQuestionsToStorage() {
 
 function display() {
     let bank = document.getElementById("bank");
-    let toolbar = selections.subject === "Mathematics" ? `<div class="math-toolbar" style="margin-bottom:10px;"><button type="button" onclick="insertMath('²')">x²</button><button type="button" onclick="insertMath('√')">√</button></div>` : "";
+    let toolbar = selections.subject === "Mathematics" ? `
+    <div class="math-toolbar" style="margin-bottom:10px; display:flex; gap:5px;">
+        <button type="button" onclick="insertMath('²')">x²</button>
+        <button type="button" onclick="insertMath('³')">x³</button>
+        <button type="button" onclick="insertMath('√')">√</button>
+        <button type="button" onclick="insertMath('π')">π</button>
+        <button type="button" onclick="insertMath('θ')">θ</button>
+    </div>` : "";
     
     bank.innerHTML = `
         <div style="margin-bottom:15px; display:flex; gap:10px;">

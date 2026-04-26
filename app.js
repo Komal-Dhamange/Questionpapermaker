@@ -217,6 +217,28 @@ function insertMath(symbol) {
         console.error("Input box not found!");
     }
 }
+// insertMath function ke niche ise paste karein:
+function uploadDiagram(inputElement) {
+    const file = inputElement.files[0];
+    const targetInput = document.getElementById("question") || document.getElementById("bulkQuestions");
+    
+    if (file && targetInput) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            // Question box mein ek <img> tag insert karega
+            const imgTag = `\n<img src="${base64Image}" style="max-width:200px; display:block; margin:10px 0;">\n`;
+            
+            let start = targetInput.selectionStart;
+            let text = targetInput.value;
+            targetInput.value = text.substring(0, start) + imgTag + text.substring(targetInput.selectionEnd);
+            
+            targetInput.focus();
+            saveQuestionsToStorage(); // Agar auto-save function hai toh
+        };
+        reader.readAsDataURL(file);
+    }
+}
 function saveQuestionsToStorage() {
     let key = `lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
@@ -233,6 +255,10 @@ function display() {
         <button type="button" onclick="insertMath('√')">√</button>
         <button type="button" onclick="insertMath('π')">π</button>
         <button type="button" onclick="insertMath('θ')">θ</button>
+        <label style="background:#eee; padding:2px 8px; border:1px solid #ccc; cursor:pointer; border-radius:3px; font-size:12px;">
+            📁 Upload Diagram
+            <input type="file" accept="image/*" style="display:none" onchange="uploadDiagram(this)">
+        </label>
     </div>` : "";
     
     bank.innerHTML = `

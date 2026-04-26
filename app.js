@@ -278,9 +278,9 @@ function generateOutput(type) {
     output += `</div>`;
     
     document.getElementById("paper").innerHTML = output + `
-        <div style="margin-top:20px; display:flex; gap:10px;">
-            <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">💾 Save Paper to History</button>
-<button onclick="setTimeout(() => { window.print(); }, 200); return false;" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print Paper</button>
+        <div style="margin-top:20px; display:flex; gap:10px; width:750px; margin:20px auto;">
+            <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Paper</button>
+            <button onclick="window.print();" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print / Save PDF</button>
         </div>`;
 }
 
@@ -299,7 +299,7 @@ function saveToFirebase() {
     lessons[currentLessonIndex].savedPapers.push({
         type: document.querySelector('#printArea h3').innerText,
         date: new Date().toLocaleString(),
-        content: element.innerHTML // HTML content save ho raha hai
+        content: element.innerHTML 
     });
 
     saveToCloud(key, lessons);
@@ -345,11 +345,10 @@ function viewSavedPaper(index) {
             ${paper.content}
         </div>
         <div style="margin-top:20px; display:flex; gap:10px; width:750px; margin:auto;">
-            <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">🖨️ Print This Paper</button>
+            <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print This Paper</button>
             <button onclick="document.getElementById('paper').innerHTML=''" style="background:#7f8c8d; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">Close</button>
         </div>`;
     
-    // Automatic scroll to paper section
     window.scrollTo({ top: paperDiv.offsetTop - 20, behavior: 'smooth' });
 }
 

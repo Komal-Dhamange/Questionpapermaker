@@ -96,17 +96,21 @@ function loadSubjects() {
             </div>
         </div>`;
     });
-    document.getElementById('subjectList').innerHTML = html;
+    document.getElementById('subjectList').innerHTML = html || '<p>No subjects added.</p>';
 }
 
 function addSubject() {
-    let name = document.getElementById('newSubName').value.trim();
+    let input = document.getElementById('newSubName');
+    let name = input.value.trim();
     if(!name) return;
+    
     let key = `subjects_class_${selections.class}`;
     let subjects = JSON.parse(localStorage.getItem(`${currentUser}_${key}`)) || []; 
     subjects.push(name);
+    
     saveToCloud(key, subjects); 
-    loadSubjects();
+    input.value = ""; // Clear input
+    loadSubjects();   // Refresh list
 }
 
 function editSubject(i) {
@@ -114,8 +118,8 @@ function editSubject(i) {
     let subjects = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
     let oldName = subjects[i];
     let newName = prompt("Edit Subject Name:", oldName);
-    if(newName && newName !== oldName) {
-        subjects[i] = newName;
+    if(newName && newName.trim() !== "" && newName !== oldName) {
+        subjects[i] = newName.trim();
         saveToCloud(key, subjects);
         loadSubjects();
     }
@@ -141,7 +145,14 @@ function selectSubject(val) {
 function loadLessons() {
     let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(key)) || [];
-    let html = '';
+    let html = `
+        <div class="management-header" style="margin-bottom:20px;">
+            <div class="add-box">
+                <input type="text" id="newLessonName" placeholder="Add New Lesson...">
+                <button onclick="addLesson()" class="add-btn">+ Add Lesson</button>
+            </div>
+        </div>`;
+    
     lessons.forEach((lesson, index) => {
         html += `
         <div class="lesson-item">
@@ -154,27 +165,31 @@ function loadLessons() {
             </div>
         </div>`;
     });
+    
     let combineBtn = lessons.length > 0 ? `<button onclick="combineLessons()" class="gen-btn" style="background:#6c5ce7; margin-top:15px; width:100%;">Combine Selected Lessons</button>` : '';
     document.getElementById('lessonList').innerHTML = (html || '<p>No lessons found.</p>') + combineBtn;
 }
 
 function addLesson() {
-    let name = document.getElementById('newLessonName').value.trim();
+    let input = document.getElementById('newLessonName');
+    let name = input.value.trim();
     if(!name) return;
+    
     let key = `lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`)) || [];
     lessons.push({ name: name, questions: [], savedPapers: [] });
+    
     saveToCloud(key, lessons); 
-    document.getElementById('newLessonName').value = '';
-    loadLessons();
+    input.value = ''; // Clear input
+    loadLessons();    // Refresh list
 }
 
 function editLesson(i) {
     let key = `lessons_${selections.class}_${selections.subject}`;
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
     let newName = prompt("Edit Lesson Name:", lessons[i].name);
-    if(newName) {
-        lessons[i].name = newName;
+    if(newName && newName.trim() !== "") {
+        lessons[i].name = newName.trim();
         saveToCloud(key, lessons);
         loadLessons();
     }

@@ -5,6 +5,7 @@ let questions = [];
 
 const DB_URL = "https://questionpapermaker-226ad-default-rtdb.firebaseio.com/.json";
 
+// --- CORE SYNC FUNCTIONS ---
 async function syncFromCloud() {
     try {
         const response = await fetch(DB_URL);
@@ -33,6 +34,7 @@ function saveToCloud(key, data) {
 
 window.onload = syncFromCloud;
 
+// --- AUTH ---
 function login() {
     let u = document.getElementById("username").value.trim();
     let p = document.getElementById("password").value.trim();
@@ -49,6 +51,16 @@ function login() {
     }
 }
 
+function logout() {
+    if(!confirm("Are you sure you want to logout?")) return;
+    currentUser = "";
+    selections = { class: '', subject: '', person: '' };
+    document.getElementById("app").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+    document.body.classList.add("login-bg");
+}
+
+// --- SUBJECT MANAGEMENT ---
 async function selectClass(val) {
     await syncFromCloud(); 
     selections.class = val;
@@ -84,7 +96,7 @@ function loadSubjects() {
             </div>
         </div>`;
     });
-    document.getElementById('subjectList').innerHTML = html || '<p>No subjects added.</p>';
+    document.getElementById('subjectList').innerHTML = html;
 }
 
 function addSubject() {
@@ -97,6 +109,27 @@ function addSubject() {
     loadSubjects();
 }
 
+function editSubject(i) {
+    let key = `subjects_class_${selections.class}`;
+    let subjects = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    let oldName = subjects[i];
+    let newName = prompt("Edit Subject Name:", oldName);
+    if(newName && newName !== oldName) {
+        subjects[i] = newName;
+        saveToCloud(key, subjects);
+        loadSubjects();
+    }
+}
+
+function deleteSubject(i) {
+    if(!confirm("Delete this subject and all its lessons?")) return;
+    let key = `subjects_class_${selections.class}`;
+    let subjects = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    subjects.splice(i, 1);
+    saveToCloud(key, subjects);
+    loadSubjects();
+}
+
 function selectSubject(val) {
     selections.subject = val;
     document.getElementById('currentStepTitle').innerText = `${val} - ${currentUser}'s Panel`; 
@@ -104,6 +137,7 @@ function selectSubject(val) {
     showStep('lessonStep');  
 }
 
+// --- LESSON MANAGEMENT ---
 function loadLessons() {
     let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(key)) || [];
@@ -135,6 +169,61 @@ function addLesson() {
     loadLessons();
 }
 
+function editLesson(i) {
+    let key = `lessons_${selections.class}_${selections.subject}`;
+    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    let newName = prompt("Edit Lesson Name:", lessons[i].name);
+    if(newName) {
+        lessons[i].name = newName;
+        saveToCloud(key, lessons);
+        loadLessons();
+    }
+}
+
+function deleteLesson(i) {
+    if(!confirm("Delete this lesson?")) return;
+    let key = `lessons_${selections.class}_${selections.subject}`;
+    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    lessons.splice(i, 1);
+    saveToCloud(key, lessons);
+    loadLessons();
+}
+
+// --- QUESTION BUILDER ---
+function addQ() {
+    let qText = document.getElementById("question").value.trim();
+    let imgFile = document.getElementById("imgInput").files[0];
+
+    if(!qText && !imgFile) { alert("Enter text or select image!"); return; }
+
+    if(imgFile) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            questions.push({ q: qText, img: e.target.result, a: "" });
+            saveQuestionsToStorage();
+            display();
+            document.getElementById("question").value = "";
+            document.getElementById("imgInput").value = "";
+        };
+        reader.readAsDataURL(imgFile);
+    } else {
+        questions.push({ q: qText, img: null, a: "" });
+        saveQuestionsToStorage();
+        display();
+        document.getElementById("question").value = "";
+    }
+}
+
+function openLesson(index) {
+    currentLessonIndex = index;
+    let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
+    let lessons = JSON.parse(localStorage.getItem(key));
+    document.getElementById('currentLessonTitle').innerText = "Topic: " + lessons[index].name;
+    questions = lessons[index].questions || [];
+    display();
+    showStep('builderStep');
+}
+
 function combineLessons() {
     let checked = document.querySelectorAll('.lesson-checkbox:checked');
     if(checked.length === 0) { alert("Please select lessons first!"); return; }
@@ -149,17 +238,7 @@ function combineLessons() {
     showStep('builderStep');
 }
 
-function openLesson(index) {
-    currentLessonIndex = index;
-    let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
-    let lessons = JSON.parse(localStorage.getItem(key));
-    document.getElementById('currentLessonTitle').innerText = "Topic: " + lessons[index].name;
-    questions = lessons[index].questions || [];
-    display();
-    showStep('builderStep');
-}
-
-// --- UPDATED DISPLAY FUNCTION WITH ORIGINAL LINE COUNTER ---
+// --- DISPLAY & OUTPUT ---
 function display() {
     let bank = document.getElementById("bank");
     let toolbar = selections.subject === "Mathematics" ? `<div class="math-toolbar" style="margin-bottom:10px;"><button type="button" onclick="insertMath('²')">x²</button><button type="button" onclick="insertMath('√')">√</button></div>` : "";
@@ -182,13 +261,11 @@ function display() {
                     <b style="font-size:16px;">${item.q}</b>
                     ${item.img ? `<img src="${item.img}" style="max-width:150px; display:block; margin-top:10px;">` : ''}
                 </div>
-                
                 <div style="display:flex; flex-direction:column; align-items:center; background:#f0f0f0; padding:5px; border-radius:5px; margin-left:10px;">
                     <label style="font-size:10px; font-weight:bold; margin-bottom:2px;">LINES</label>
                     <input type="number" id="lines_${i}" value="0" min="0" max="20" 
                            style="width:45px; text-align:center; border:1px solid #ccc; border-radius:3px; padding:2px; font-weight:bold;">
                 </div>
-
                 <button onclick="deleteQ(${i})" style="color:#e74c3c; border:none; background:none; cursor:pointer; margin-left:15px; font-weight:bold; font-size:18px;">&times;</button>
             </div>
             <div style="margin-top:12px;">
@@ -200,6 +277,26 @@ function display() {
     }).join('');
 }
 
+function saveQuestionsToStorage() {
+    if(currentLessonIndex === "MULTI") return;
+    let key = `lessons_${selections.class}_${selections.subject}`; 
+    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    lessons[currentLessonIndex].questions = questions;
+    saveToCloud(key, lessons); 
+}
+
+function updateAns(idx, val) {
+    questions[idx].a = val;
+    saveQuestionsToStorage();
+}
+
+function deleteQ(i) {
+    questions.splice(i, 1);
+    saveQuestionsToStorage();
+    display();
+}
+
+// --- PAPER GENERATION & HISTORY ---
 function generateOutput(type) {
     let selected = document.querySelectorAll(".q-select:checked");
     if(selected.length === 0) { alert("Select questions first!"); return; }
@@ -213,7 +310,7 @@ function generateOutput(type) {
         <h1 style="text-align:center; margin-bottom:5px;">Narayana Tuition Classes</h1>
         <h3 style="text-align:center; margin-top:0;">${isWorksheet ? 'Worksheet' : examName}</h3>`;
 
-    if (!isWorksheet) { output += `<div style="text-align:center; font-weight:bold; margin-bottom:15px;">Date: ${pDate}</div>`; }
+    if (!isWorksheet) output += `<div style="text-align:center; font-weight:bold; margin-bottom:15px;">Date: ${pDate}</div>`;
 
     output += `<div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px; font-size:15px; padding:0 5px;">
             <div style="text-align:left;">
@@ -235,23 +332,20 @@ function generateOutput(type) {
             <p style="margin:5px 0;"><b>Q.${i+1} ${item.q}</b></p>
             ${item.img ? `<img src="${item.img}" style="max-width:300px;">` : ''}`;
         if (type === 'tp' && reqLines > 0) {
-            for(let l=0; l<reqLines; l++) { output += `<div style="border-bottom: 1px solid #ccc; height: 25px; width: 100%; margin-bottom:5px;"></div>`; }
+            for(let l=0; l<reqLines; l++) output += `<div style="border-bottom: 1px solid #ccc; height: 25px; width: 100%; margin-bottom:5px;"></div>`;
         }
-        if(type === 'ws' && item.a) { output += `<p style="color: blue; margin-top:5px;"><i>Ans: ${item.a}</i></p>`; }
+        if(type === 'ws' && item.a) output += `<p style="color: blue; margin-top:5px;"><i>Ans: ${item.a}</i></p>`;
         output += `</div>`;
     });
     output += `</div>`;
     
-    document.getElementById("paper").innerHTML = output;
-
-    document.getElementById("paper").innerHTML += `
+    document.getElementById("paper").innerHTML = output + `
         <div style="margin-top:20px; display:flex; gap:10px;">
             <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">💾 Save Paper to Lesson</button>
             <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">🖨️ Print Paper</button>
         </div>`;
 }
 
-// --- UPDATED SAVE TO FIREBASE FUNCTION ---
 function saveToFirebase() {
     const element = document.getElementById('printArea');
     if(!element) { alert("Please generate the paper first!"); return; }
@@ -259,7 +353,6 @@ function saveToFirebase() {
 
     let key = `lessons_${selections.class}_${selections.subject}`;
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
-    
     if (!lessons[currentLessonIndex].savedPapers) lessons[currentLessonIndex].savedPapers = [];
 
     lessons[currentLessonIndex].savedPapers.push({
@@ -269,53 +362,39 @@ function saveToFirebase() {
     });
 
     saveToCloud(key, lessons);
-    alert("Paper saved to History successfully!");
+    alert("Paper saved to History!");
 }
-// --- LOGOUT FUNCTION ---
-function logout() {
-    if(!confirm("Are you sure you want to logout?")) return;
-    currentUser = "";
-    selections = { class: '', subject: '', person: '' };
-    document.getElementById("app").style.display = "none";
-    document.getElementById("loginBox").style.display = "block";
-    document.body.classList.add("login-bg");
-    
-    // Form clear karne ke liye
-    if(document.getElementById("username")) document.getElementById("username").value = "";
-    if(document.getElementById("password")) document.getElementById("password").value = "";
-}
+
+// --- NAVIGATION & UTILS ---
 function goBack() {
     let currentStep = "";
-    // Check karein abhi kaunsa step visible hai
-    document.querySelectorAll('.step-container').forEach(s => {
-        if(s.style.display === 'block') currentStep = s.id;
-    });
+    document.querySelectorAll('.step-container').forEach(s => { if(s.style.display === 'block') currentStep = s.id; });
 
-    if (currentStep === 'subjectStep') {
-        showStep('classStep'); // Class select karne wale page par jayein
-    } else if (currentStep === 'lessonStep') {
-        showStep('subjectStep'); // Subject select karne wale page par jayein
-    } else if (currentStep === 'builderStep') {
-        showStep('lessonStep'); // Lesson list par wapas jayein
-        loadLessons(); // List refresh karein
-    }
+    if (currentStep === 'subjectStep') showStep('classStep');
+    else if (currentStep === 'lessonStep') showStep('subjectStep');
+    else if (currentStep === 'builderStep') { showStep('lessonStep'); loadLessons(); }
 }
-// --- HISTORY LIST WITH VIEW & DELETE BUTTONS ---
+
+function showStep(stepId) { 
+    document.querySelectorAll('.step-container').forEach(s => s.style.display = 'none'); 
+    document.getElementById(stepId).style.display = 'block'; 
+}
+
+function insertMath(sym) { 
+    let qInput = document.getElementById("question"); 
+    qInput.value += sym; 
+    qInput.focus(); 
+}
+
 function showSavedPapersList() {
     if (currentLessonIndex === "MULTI") { alert("History is not available for combined lessons."); return; }
-    
     let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(key));
     let papers = (lessons && lessons[currentLessonIndex]) ? (lessons[currentLessonIndex].savedPapers || []) : [];
     
     let listArea = document.getElementById('papersList');
     document.getElementById('savedPapersSection').style.display = "block";
-    listArea.innerHTML = "";
-
-    if(papers.length === 0) {
-        listArea.innerHTML = "<li style='padding:10px; color:#666;'>No papers saved yet.</li>";
-        return;
-    }
+    listArea.innerHTML = papers.length ? "" : "<li style='padding:10px; color:#666;'>No papers saved yet.</li>";
 
     papers.forEach((p, i) => {
         listArea.innerHTML += `
@@ -329,20 +408,12 @@ function showSavedPapersList() {
     });
 }
 
-// --- FUNCTION TO DELETE SAVED PAPER ---
 function deleteSavedPaper(index) {
-    if(!confirm("Are you sure you want to delete this saved paper permanently?")) return;
-
+    if(!confirm("Delete this saved paper?")) return;
     let key = `lessons_${selections.class}_${selections.subject}`;
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
-    
-    // History se paper remove kiya
     lessons[currentLessonIndex].savedPapers.splice(index, 1);
-    
-    // Firebase aur LocalStorage update
     saveToCloud(key, lessons);
-    
-    // List refresh
     showSavedPapersList();
 }
 
@@ -355,34 +426,4 @@ function viewSavedPaper(index) {
             ${paper.content}
         </div>
         <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; width:100%; margin-top:10px; border:none; border-radius:5px; cursor:pointer;">🖨️ Print This Paper</button>`;
-}
-
-function generatePaper() { generateOutput('tp'); }
-function generateWorksheet() { generateOutput('ws'); }
-function printPaper() { window.print(); }
-
-function insertMath(sym) { let qInput = document.getElementById("question"); qInput.value += sym; qInput.focus(); }
-function showStep(stepId) { document.querySelectorAll('.step-container').forEach(s => s.style.display = 'none'); document.getElementById(stepId).style.display = 'block'; }
-
-function editSubject(i) { /* existing logic */ }
-function deleteSubject(i) { /* existing logic */ }
-function editLesson(i) { /* existing logic */ }
-function deleteLesson(i) { /* existing logic */ }
-
-function updateAns(idx, val) {
-    questions[idx].a = val;
-    if(currentLessonIndex !== "MULTI") saveQuestionsToStorage();
-}
-
-function deleteQ(i) {
-    questions.splice(i, 1);
-    if(currentLessonIndex !== "MULTI") saveQuestionsToStorage();
-    display();
-}
-
-function saveQuestionsToStorage() {
-    let key = `lessons_${selections.class}_${selections.subject}`; 
-    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
-    lessons[currentLessonIndex].questions = questions;
-    saveToCloud(key, lessons); 
 }

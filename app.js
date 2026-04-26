@@ -251,7 +251,7 @@ function generateOutput(type) {
     let pDate = document.getElementById('paperDate').value || '';
     let isWorksheet = (type === 'ws');
 
-    let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white;">
+    let output = `<div id="printArea" style="padding:20px; border:2px solid #000; font-family:Arial; width:100%; margin:auto; background:white;">
         <h1 style="text-align:center; margin-bottom:5px;">Narayana Tuition Classes</h1>
         <h3 style="text-align:center; margin-top:0;">${isWorksheet ? 'Worksheet' : examName}</h3>`;
 
@@ -278,7 +278,7 @@ function generateOutput(type) {
     output += `</div>`;
     
     document.getElementById("paper").innerHTML = output + `
-        <div style="margin-top:20px; display:flex; gap:10px; width:750px; margin:20px auto;">
+        <div style="margin-top:20px; display:flex; gap:10px; width:100%; margin:20px auto;">
             <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Paper</button>
             // JS code ke aakhir mein jo button banta hai use aisa rakhein:
 <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print Paper</button>

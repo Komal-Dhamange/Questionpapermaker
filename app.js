@@ -280,7 +280,8 @@ function generateOutput(type) {
     document.getElementById("paper").innerHTML = output + `
         <div style="margin-top:20px; display:flex; gap:10px; width:750px; margin:20px auto;">
             <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Paper</button>
-            <button onclick="window.print();" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print / Save PDF</button>
+            // JS code ke aakhir mein jo button banta hai use aisa rakhein:
+<button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print Paper</button>
         </div>`;
 }
 

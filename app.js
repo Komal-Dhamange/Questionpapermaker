@@ -202,7 +202,7 @@ function addQuestion() {
 }
 // --- MATH UTILS ---
 function insertMath(symbol) {
-    // Ye line dhyan se dekhiye, ye aapke input boxes ki ID check karta hai
+    
     let input = document.getElementById("question") || document.getElementById("bulkQuestions");
     
     if (input) {
@@ -211,13 +211,13 @@ function insertMath(symbol) {
         let text = input.value;
         input.value = text.substring(0, start) + symbol + text.substring(end);
         input.focus();
-        // Cursor ko symbol ke aage set karne ke liye
+        
         input.setSelectionRange(start + symbol.length, start + symbol.length);
     } else {
         console.error("Input box not found!");
     }
 }
-// insertMath function ke niche ise paste karein:
+
 function uploadDiagram(inputElement) {
     const file = inputElement.files[0];
     const targetInput = document.getElementById("question") || document.getElementById("bulkQuestions");
@@ -318,6 +318,9 @@ function generateOutput(type) {
         let reqLines = parseInt(document.getElementById('lines_' + idx).value) || 0;
         output += `<div style="margin-bottom:15px;">
             <p><b>Q.${i+1} ${item.q}</b></p>`;
+        if (item.img) {
+    output += `<img src="${item.img}" style="max-width:300px; display:block; margin:10px 0; border:1px solid #eee;">`;
+}
         if (type === 'tp' && reqLines > 0) {
             for(let l=0; l<reqLines; l++) { output += `<div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom:5px;"></div>`; }
         }
@@ -329,11 +332,34 @@ function generateOutput(type) {
     document.getElementById("paper").innerHTML = output + `
         <div style="margin-top:20px; display:flex; gap:10px; width:100%; margin:20px auto;">
             <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Paper</button>
-            // JS code ke aakhir mein jo button banta hai use aisa rakhein:
+            
 <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print Paper</button>
         </div>`;
 }
-
+function uploadDiagram(inputElement) {
+    const file = inputElement.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            
+            
+            questions.push({ 
+                q: "Diagram-based question:", 
+                a: "", 
+                img: base64Image 
+            });
+            
+            if(typeof currentLessonIndex !== 'undefined' && currentLessonIndex !== "MULTI") {
+                saveQuestionsToStorage();
+            }
+            
+            display(); 
+            alert("Diagram Upload Successfully!");
+        };
+        reader.readAsDataURL(file);
+    }
+}
 // --- NEW/UPDATED FUNCTIONS FOR SAVING AND VIEWING ---
 
 function saveToFirebase() {

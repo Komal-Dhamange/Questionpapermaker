@@ -213,10 +213,6 @@ function display() {
     let toolbar = selections.subject === "Mathematics" ? `<div class="math-toolbar" style="margin-bottom:10px;"><button type="button" onclick="insertMath('²')">x²</button><button type="button" onclick="insertMath('√')">√</button></div>` : "";
     
     bank.innerHTML = `
-        <div class="add-box" style="margin-bottom:15px;">
-            <input type="text" id="question" placeholder="Type new question here...">
-            <button onclick="addQuestion()" class="add-btn">Add Q</button>
-        </div>
         <div style="margin-bottom:15px; display:flex; gap:10px;">
             <button onclick="showSavedPapersList()" style="background:#2980b9; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer;">📁 View Saved Papers</button>
         </div>
@@ -284,7 +280,7 @@ function generateOutput(type) {
     document.getElementById("paper").innerHTML = output + `
         <div style="margin-top:20px; display:flex; gap:10px;">
             <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">💾 Save Paper to History</button>
-            <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">🖨️ Print Paper</button>
+<button onclick="setTimeout(() => { window.print(); }, 200); return false;" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print Paper</button>
         </div>`;
 }
 

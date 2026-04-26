@@ -200,7 +200,23 @@ function addQuestion() {
     if(currentLessonIndex !== "MULTI") saveQuestionsToStorage();
     display();
 }
-
+// --- MATH UTILS ---
+function insertMath(symbol) {
+    // Ye line dhyan se dekhiye, ye aapke input boxes ki ID check karta hai
+    let input = document.getElementById("question") || document.getElementById("bulkQuestions");
+    
+    if (input) {
+        let start = input.selectionStart;
+        let end = input.selectionEnd;
+        let text = input.value;
+        input.value = text.substring(0, start) + symbol + text.substring(end);
+        input.focus();
+        // Cursor ko symbol ke aage set karne ke liye
+        input.setSelectionRange(start + symbol.length, start + symbol.length);
+    } else {
+        console.error("Input box not found!");
+    }
+}
 function saveQuestionsToStorage() {
     let key = `lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));

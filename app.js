@@ -288,6 +288,84 @@ function generateOutput(type) {
         </div>`;
 }
 
+// --- NEW/UPDATED FUNCTIONS FOR SAVING AND VIEWING ---
+
+function saveToFirebase() {
+    const element = document.getElementById('printArea');
+    if(!element) { alert("Please generate the paper first!"); return; }
+    if (currentLessonIndex === "MULTI") { alert("Only single lesson papers can be saved."); return; }
+
+    let key = `lessons_${selections.class}_${selections.subject}`;
+    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    
+    if (!lessons[currentLessonIndex].savedPapers) lessons[currentLessonIndex].savedPapers = [];
+
+    lessons[currentLessonIndex].savedPapers.push({
+        type: document.querySelector('#printArea h3').innerText,
+        date: new Date().toLocaleString(),
+        content: element.innerHTML // HTML content save ho raha hai
+    });
+
+    saveToCloud(key, lessons);
+    alert("Paper saved to History successfully!");
+}
+
+function showSavedPapersList() {
+    if (currentLessonIndex === "MULTI") { alert("History is not available for combined lessons."); return; }
+    
+    let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
+    let lessons = JSON.parse(localStorage.getItem(key));
+    let papers = (lessons && lessons[currentLessonIndex]) ? (lessons[currentLessonIndex].savedPapers || []) : [];
+    
+    let listArea = document.getElementById('papersList');
+    document.getElementById('savedPapersSection').style.display = "block";
+    listArea.innerHTML = "";
+
+    if(papers.length === 0) {
+        listArea.innerHTML = "<li style='padding:10px; color:#666;'>No papers saved yet.</li>";
+        return;
+    }
+
+    papers.forEach((p, i) => {
+        listArea.innerHTML += `
+            <li style="padding:12px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; background:#fff; margin-bottom:5px; border-radius:4px;">
+                <span style="font-size:14px;"><b>${p.type}</b> <br> <small style="color:#888;">${p.date}</small></span>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="viewSavedPaper(${i})" style="padding:6px 12px; cursor:pointer; background:#2ecc71; color:white; border:none; border-radius:4px;">View</button>
+                    <button onclick="deleteSavedPaper(${i})" style="padding:6px 12px; cursor:pointer; background:#e74c3c; color:white; border:none; border-radius:4px;">Delete</button>
+                </div>
+            </li>`;
+    });
+}
+
+function viewSavedPaper(index) {
+    let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`;
+    let lessons = JSON.parse(localStorage.getItem(key));
+    let paper = lessons[currentLessonIndex].savedPapers[index];
+    
+    let paperDiv = document.getElementById("paper");
+    paperDiv.innerHTML = `
+        <div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white;">
+            ${paper.content}
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px; width:750px; margin:auto;">
+            <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">🖨️ Print This Paper</button>
+            <button onclick="document.getElementById('paper').innerHTML=''" style="background:#7f8c8d; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">Close</button>
+        </div>`;
+    
+    // Automatic scroll to paper section
+    window.scrollTo({ top: paperDiv.offsetTop - 20, behavior: 'smooth' });
+}
+
+function deleteSavedPaper(index) {
+    if(!confirm("Delete this saved paper?")) return;
+    let key = `lessons_${selections.class}_${selections.subject}`;
+    let lessons = JSON.parse(localStorage.getItem(`${currentUser}_${key}`));
+    lessons[currentLessonIndex].savedPapers.splice(index, 1);
+    saveToCloud(key, lessons);
+    showSavedPapersList();
+}
+
 // --- NAVIGATION & UTILS ---
 function showStep(stepId) { 
     document.querySelectorAll('.step-container').forEach(s => s.style.display = 'none'); 
@@ -306,7 +384,7 @@ function goBack() {
 
 function logout() {
     if(!confirm("Are you sure you want to logout?")) return;
-    location.reload(); // Refresh to clear state
+    location.reload(); 
 }
 
 function generatePaper() { generateOutput('tp'); }

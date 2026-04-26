@@ -106,6 +106,7 @@ function addSubject() {
     let subjects = JSON.parse(localStorage.getItem(`${currentUser}_${key}`)) || []; 
     subjects.push(name);
     saveToCloud(key, subjects); 
+    document.getElementById('newSubName').value = "";
     loadSubjects();
 }
 
@@ -141,7 +142,13 @@ function selectSubject(val) {
 function loadLessons() {
     let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`; 
     let lessons = JSON.parse(localStorage.getItem(key)) || [];
-    let html = '';
+    let html = `
+        <div class="management-header" style="margin-bottom:20px;">
+            <div class="add-box">
+                <input type="text" id="newLessonName" placeholder="Add New Lesson...">
+                <button onclick="addLesson()" class="add-btn">+ Add Lesson</button>
+            </div>
+        </div>`;
     lessons.forEach((lesson, index) => {
         html += `
         <div class="lesson-item">
@@ -300,13 +307,14 @@ function deleteQ(i) {
 function generateOutput(type) {
     let selected = document.querySelectorAll(".q-select:checked");
     if(selected.length === 0) { alert("Select questions first!"); return; }
+    
     let examName = document.getElementById('paperTitle').value || 'Test Paper';
     let pTime = document.getElementById('paperTime').value || '';
     let pMarks = document.getElementById('paperMarks').value || '';
     let pDate = document.getElementById('paperDate').value || '';
     let isWorksheet = (type === 'ws');
 
-    let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white;">
+    let output = `<div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white; min-height:1000px;">
         <h1 style="text-align:center; margin-bottom:5px;">Narayana Tuition Classes</h1>
         <h3 style="text-align:center; margin-top:0;">${isWorksheet ? 'Worksheet' : examName}</h3>`;
 
@@ -330,20 +338,27 @@ function generateOutput(type) {
         let reqLines = parseInt(document.getElementById('lines_' + idx).value) || 0;
         output += `<div style="margin-bottom:15px;">
             <p style="margin:5px 0;"><b>Q.${i+1} ${item.q}</b></p>
-            ${item.img ? `<img src="${item.img}" style="max-width:300px;">` : ''}`;
-        if (type === 'tp' && reqLines > 0) {
+            ${item.img ? `<img src="${item.img}" style="max-width:300px; display:block; margin:10px 0;">` : ''}`;
+        
+        if (!isWorksheet && reqLines > 0) {
             for(let l=0; l<reqLines; l++) output += `<div style="border-bottom: 1px solid #ccc; height: 25px; width: 100%; margin-bottom:5px;"></div>`;
         }
-        if(type === 'ws' && item.a) output += `<p style="color: blue; margin-top:5px;"><i>Ans: ${item.a}</i></p>`;
+        
+        if(isWorksheet && item.a) {
+            output += `<p style="color: blue; margin-top:5px; font-weight:bold;"><i>Ans: ${item.a}</i></p>`;
+        }
         output += `</div>`;
     });
     output += `</div>`;
     
     document.getElementById("paper").innerHTML = output + `
-        <div style="margin-top:20px; display:flex; gap:10px;">
-            <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">💾 Save Paper to Lesson</button>
-            <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; flex:1; border:none; border-radius:5px; cursor:pointer;">🖨️ Print Paper</button>
+        <div style="margin-top:20px; display:flex; gap:10px; margin-bottom:50px;">
+            <button onclick="saveToFirebase()" style="background:#27ae60; color:white; padding:12px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Paper to History</button>
+            <button onclick="window.print()" style="background:#f39c12; color:white; padding:12px; flex:1; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print / Save PDF</button>
         </div>`;
+    
+    // Scroll automatically to see the generated paper
+    document.getElementById("paper").scrollIntoView({ behavior: 'smooth' });
 }
 
 function saveToFirebase() {
@@ -362,7 +377,7 @@ function saveToFirebase() {
     });
 
     saveToCloud(key, lessons);
-    alert("Paper saved to History!");
+    alert("Paper saved to Lesson History!");
 }
 
 // --- NAVIGATION & UTILS ---
@@ -421,9 +436,14 @@ function viewSavedPaper(index) {
     let key = `${currentUser}_lessons_${selections.class}_${selections.subject}`;
     let lessons = JSON.parse(localStorage.getItem(key));
     let paper = lessons[currentLessonIndex].savedPapers[index];
+    
     document.getElementById("paper").innerHTML = `
-        <div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white;">
+        <div id="printArea" style="padding:40px; border:2px solid #000; font-family:Arial; width:750px; margin:auto; background:white; min-height:1000px;">
             ${paper.content}
         </div>
-        <button onclick="window.print()" style="background:#f39c12; color:white; padding:10px; width:100%; margin-top:10px; border:none; border-radius:5px; cursor:pointer;">🖨️ Print This Paper</button>`;
+        <div style="margin-top:20px; margin-bottom:50px;">
+            <button onclick="window.print()" style="background:#f39c12; color:white; padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ Print / Save This PDF</button>
+        </div>`;
+    
+    document.getElementById("paper").scrollIntoView({ behavior: 'smooth' });
 }

@@ -153,6 +153,8 @@ It motivates and supports further development!
 </p>
 ```
 ---
+🔗 LinkedIn Profile: https://www.linkedin.com/in/komal-dhamange-406584374
+
 
 🔥 Why this is better:
 
@@ -166,5 +168,4 @@ Clean spacing + visual hierarchy
 
 Looks like real portfolio-level project
 
-🔗 LinkedIn Profile: https://www.linkedin.com/in/komal-dhamange-406584374
 

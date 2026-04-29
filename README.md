@@ -152,9 +152,9 @@ It motivates and supports further development!
   💡 <i>"Turning simple ideas into powerful tools."</i>
 </p>
 ```
----
 🔗 LinkedIn Profile: https://www.linkedin.com/in/komal-dhamange-406584374
 
+---
 
 🔥 Why this is better:
 

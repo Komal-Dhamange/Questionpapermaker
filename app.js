@@ -39,7 +39,7 @@ window.onload = syncFromCloud;
 function login() {
     let u = document.getElementById("username").value.trim();
     let p = document.getElementById("password").value.trim();
-    const allowedUsers = ["Komal", "Kunal", "Prajwal", "Pranay", "Payal"];
+    const allowedUsers = ["Komal", "Kunallll", "Prajwallll", "Pranayyyy", "Payallll"];
     if (allowedUsers.includes(u) && p === "1234") {
         currentUser = u;   
         selections.person = u;  
